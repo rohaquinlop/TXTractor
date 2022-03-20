@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:txtractor/Screens/text_screen.dart';
 
 class CameraScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
@@ -40,10 +43,25 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final ImagePicker _picker = ImagePicker();
+    var inputImage;
+
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(19, 13, 112, 1),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      backgroundColor: const Color.fromRGBO(31, 35, 41, 1),
+      appBar: AppBar(
+        title: const Text(
+          'TXTractor',
+          style: TextStyle(
+            color: Color.fromRGBO(252, 70, 67, 1),
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: const Color.fromRGBO(31, 35, 41, 1),
+        elevation: 0,
+      ),
+      body: Stack(
+        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           FutureBuilder<void>(
             future: _initializeControllerFuture,
@@ -55,44 +73,72 @@ class _CameraScreenState extends State<CameraScreen> {
               }
             },
           ),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                IconButton(
-                    onPressed: () {
-                      if (widget.cameras.length > 1) {
-                        setState(() {
-                          selectedCamera =
-                              (selectedCamera + 1) % widget.cameras.length;
-                          initializeCamera(selectedCamera);
-                        });
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('No other camera available'),
-                                duration: Duration(seconds: 2)));
-                      }
+          Container(
+            padding: const EdgeInsets.all(5.0),
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color.fromRGBO(31, 35, 41, 0.6),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                      onPressed: () {
+                        if (widget.cameras.length > 1) {
+                          setState(() {
+                            selectedCamera =
+                                (selectedCamera + 1) % widget.cameras.length;
+                            initializeCamera(selectedCamera);
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('No other camera available'),
+                                  duration: Duration(seconds: 2)));
+                        }
+                      },
+                      icon: const Icon(Icons.cameraswitch_rounded,
+                          color: Colors.white)),
+                  GestureDetector(
+                    //Take picture and send it to the extraction screen
+                    onTap: () async {
+                      await _initializeControllerFuture;
+                      var xFile = await _controller.takePicture();
+                      inputImage = InputImage.fromFilePath(xFile.path);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TextScreen(
+                            inputImage: inputImage,
+                          ),
+                        ),
+                      );
                     },
-                    icon: const Icon(Icons.cameraswitch_rounded,
-                        color: Colors.white)),
-                GestureDetector(
-                  //Take picture and send it to the extraction screen
-                  onTap: () async {
-                    await _initializeControllerFuture;
-                    var xFile = await _controller.takePicture();
-                    setState(() {
-                      capturedImages.add(File(xFile.path));
-                    });
-                  },
-                  child: const Icon(Icons.camera_alt, color: Colors.white),
-                ),
-                IconButton(
-                    //Open gallery, load image and send it to the extraction screen
-                    onPressed: () {},
-                    icon: const Icon(Icons.photo_library_rounded,
-                        color: Colors.white)),
-              ],
+                    child: const Icon(Icons.camera_alt, color: Colors.white),
+                  ),
+                  IconButton(
+                      //Open gallery, load image and send it to the extraction screen
+                      onPressed: () async {
+                        final XFile? image = await _picker.pickImage(
+                            source: ImageSource.gallery);
+                        if (image != null) {
+                          inputImage = InputImage.fromFilePath(image.path);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TextScreen(
+                                inputImage: inputImage,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.photo_library_rounded,
+                          color: Colors.white)),
+                ],
+              ),
             ),
           ),
         ],
