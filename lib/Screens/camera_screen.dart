@@ -44,10 +44,11 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     final ImagePicker _picker = ImagePicker();
-    var inputImage;
+    InputImage inputImage;
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(31, 35, 41, 1),
+      /*
       appBar: AppBar(
         title: const Text(
           'TXTractor',
@@ -59,11 +60,12 @@ class _CameraScreenState extends State<CameraScreen> {
         ),
         backgroundColor: const Color.fromRGBO(31, 35, 41, 1),
         elevation: 0,
-      ),
+      ),*/
       body: Stack(
         //mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          FutureBuilder<void>(
+          Center(
+              child: FutureBuilder<void>(
             future: _initializeControllerFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
@@ -72,7 +74,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 return const Center(child: CircularProgressIndicator());
               }
             },
-          ),
+          )),
           Container(
             padding: const EdgeInsets.all(5.0),
             alignment: Alignment.bottomCenter,
