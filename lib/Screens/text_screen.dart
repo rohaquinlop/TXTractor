@@ -69,48 +69,56 @@ class _TextScreenState extends State<TextScreen> {
         backgroundColor: const Color.fromRGBO(31, 35, 41, 1),
         elevation: 0,
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const Text('Results of the TXTraction',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-              )),
-          const SizedBox(height: 20),
-          FutureBuilder(
-            future: getTextFromImage(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasData) {
-                texts = snapshot.data;
-                var finalText = concatenateText(texts);
-                _TextController.text = finalText;
-                //Show the finalText on a text box and let the user copy it
-                return SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.4,
-                  child: Scrollbar(
-                      child: TextField(
-                    controller: _TextController,
-                    textInputAction: TextInputAction.newline,
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    style: const TextStyle(
-                      color: Color.fromRGBO(31, 35, 41, 1),
-                      fontSize: 20,
-                    ),
-                    decoration: const InputDecoration(
-                        fillColor: Colors.white, filled: true),
+      body: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('Text extracted from image',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
                   )),
-                );
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
-        ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20),
+              child: FutureBuilder(
+                future: getTextFromImage(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (snapshot.hasData) {
+                    texts = snapshot.data;
+                    var finalText = concatenateText(texts);
+                    _TextController.text = finalText;
+                    //Show the finalText on a text box and let the user copy it
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: Scrollbar(
+                          child: TextField(
+                        controller: _TextController,
+                        textInputAction: TextInputAction.newline,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        style: const TextStyle(
+                          color: Color.fromRGBO(31, 35, 41, 1),
+                          fontSize: 20,
+                        ),
+                        decoration: const InputDecoration(
+                            fillColor: Colors.white, filled: true),
+                      )),
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color.fromRGBO(252, 70, 67, 1),
